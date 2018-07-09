@@ -10,11 +10,15 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
     
-    var itemArray = ["eat", "sleep", "run"]
+    var itemArray = [Item]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        let newItem = Item()
+        newItem.title = "Shower"
+        itemArray.append(newItem)
+        
     }
 
     //MARK - Tableview Datasource Methods
@@ -28,7 +32,11 @@ class ToDoListViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell 
         
@@ -38,12 +46,16 @@ class ToDoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark { //adding checkmark
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+       /* if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark { //adding checkmark
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
         } else{
             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
         }
-        
+        */
+
+        tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true) //flashing grey
         
     }
@@ -59,7 +71,10 @@ class ToDoListViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in  //button pressed
             //once the user clicks the add item button on our ui alert
-            self.itemArray.append(textField.text!) //adding user text to array ??
+            
+            let newItem = Item()
+            newItem.title = textField.text!
+            self.itemArray.append(newItem) //adding user text to array
             
             self.tableView.reloadData() //repopulating table
         }
