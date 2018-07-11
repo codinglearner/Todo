@@ -11,14 +11,12 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     
     var itemArray = [Item]()
+    
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let newItem = Item()
-        newItem.title = "Shower"
-        itemArray.append(newItem)
-        
+        loadItems()
     }
 
     //MARK - Tableview Datasource Methods
@@ -55,7 +53,8 @@ class ToDoListViewController: UITableViewController {
         }
         */
 
-        tableView.reloadData()
+        saveItems()
+        
         tableView.deselectRow(at: indexPath, animated: true) //flashing grey
         
     }
@@ -76,7 +75,8 @@ class ToDoListViewController: UITableViewController {
             newItem.title = textField.text!
             self.itemArray.append(newItem) //adding user text to array
             
-            self.tableView.reloadData() //repopulating table
+            
+            self.saveItems()
         }
         
         alert.addTextField { (alertTextField) in //add text box
@@ -90,5 +90,34 @@ class ToDoListViewController: UITableViewController {
         
     }
     
+     //MARK - Methods
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+        
+        self.tableView.reloadData() //repopulating table
+        
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do {
+            itemArray = try decoder.decode([Item].self, from: data)
+            } catch{
+                print("Error, \(error)")
+            }
+        }
+    }
+    
 }
+
+
+
 
